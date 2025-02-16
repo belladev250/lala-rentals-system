@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+
+id       String   @id @default(cuid())
+name      String
+email     String  @unique
+role      Role
+createdAt  DateTime @default(now())
+properties Property[] // a user can have many properties 
+bookings Booking[] // a user can have many bookings
+
+}
+
+model Property {
+
+id       String   @id @default(cuid())
+title    String
+description String
+price     Float
+location  String
+hostId    String
+host     User   @relation(fields: [hostId], references: [id]) //A property belongs to one user 
+bookings Booking[] // a property can have many bookings
+
+
+}
+
+model Booking {
+
+  id       String   @id @default(cuid())
+  propertyId String 
+  renterId   String 
+  checkIn  DateTime
+  checkOut DateTime
+  status  Status 
+  renter User @relation(fields: [renterId], references: [id]) // a booking belongs to one user
+  property Property @relation(fields: [propertyId], references: [id]) //  a booking is for one property
+
+}
+
+enum Role{
+
+RENTER
+HOST
+
+}
+
+enum Status{
+
+  PENDING
+  CONFIRMED
+  CANCELED
+}
+
