@@ -19,6 +19,8 @@ id       String   @id @default(cuid())
 name      String
 email     String  @unique
 role      Role
+googleId  String   @unique
+
 createdAt  DateTime @default(now())
 properties Property[] // a user can have many properties 
 bookings Booking[] // a user can have many bookings
@@ -38,6 +40,7 @@ bookings Booking[] // a property can have many bookings
 
 
 }
+
 
 model Booking {
 
