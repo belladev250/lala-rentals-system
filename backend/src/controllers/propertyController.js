@@ -9,6 +9,7 @@ export const createProperty = async (req, res) => {
   });
 
   res.json(property);
+  console.log( "daaaaaaaaaaaaaaaata ",property)
 };
 
 export const getAllProperties = async (req, res) => {
