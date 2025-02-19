@@ -23,7 +23,7 @@ const router = express.Router();
  *                 type: string
  *               description:
  *                 type: string
- *               pricePerNight:
+ *               price:
  *                 type: number
  *               location:
  *                 type: string

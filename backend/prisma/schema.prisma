@@ -44,7 +44,7 @@ bookings Booking[] // a property can have many bookings
 
 model Booking {
 
-  id       String   @id @default(cuid())
+  id      String   @id @default(cuid())
   propertyId String 
   renterId   String 
   checkIn  DateTime
