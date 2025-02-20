@@ -1,6 +1,7 @@
 import express from "express";
 import { createProperty, getAllProperties } from "../controllers/propertyController.js";
 import { authenticateUser } from "../middlewares/authmiddleware.js";
+import { upload } from "../middlewares/uploadMiddleware.js";
 
 const router = express.Router();
 
@@ -33,7 +34,9 @@ const router = express.Router();
  *       400:
  *         description: Invalid request data
  */
-router.post("/", authenticateUser, createProperty);
+router.post("", authenticateUser, upload.array("images", 4), createProperty);
+
+
 
 /**
  * @swagger

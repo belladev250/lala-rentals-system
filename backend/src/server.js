@@ -7,7 +7,7 @@ import authRoutes from "./routes/authRoutes.js";
 import propertyRoutes from "./routes/propertyRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import setupSwagger from "./utils/swagger.js";
-
+import changeRole from './routes/changeRole.js'
 dotenv.config();
 const app = express();
 
@@ -19,6 +19,10 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/properties", propertyRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/user",changeRole);
+app.use("/uploads", express.static("uploads")); 
+
+
 
 
 setupSwagger(app);

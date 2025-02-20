@@ -133,6 +133,7 @@ export const googleAuthCallback = async (req, res) => {
                     name,
                     googleId: sub,
                     role: "RENTER",
+
                 },
             });
         }
@@ -156,3 +157,27 @@ export const googleAuthCallback = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+
+
+
+export const changeUserRole = async (req, res) => {
+    try {
+      const { role } = req.body;
+  
+     
+  
+      const userId = req.user.id; 
+
+      const updatedUser = await prisma.user.update({
+        where: { id: userId },
+        data: { role },
+      });
+  
+      res.json({ message: "Role updated successfully", user: updatedUser });
+    } catch (error) {
+      console.error("Role Update Error:", error);
+      res.status(500).json({ error: "Something went wrong" });
+    }
+  };
+  

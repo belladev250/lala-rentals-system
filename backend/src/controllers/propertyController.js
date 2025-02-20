@@ -5,12 +5,21 @@ export const createProperty = async (req, res) => {
 
   const hostId = req.user.id;
 
-  const property = await prisma.property.create({
-    data: { title, description, price, location, hostId },
-  });
+  if (req.user.role !== "HOST") {
+    return res.status(403).json({ error: "Forbidden: Only hosts can create properties" });
+  }
 
-  res.json(property);
-  console.log( "daaaaaaaaaaaaaaaata ",property)
+  try {
+    const images = req.files ? req.files.map(file => file.filename) : [];
+
+    const property = await prisma.property.create({
+      data: { title, description, price, location,image, hostId },
+    });
+    res.json(property);
+  } catch (error) {
+    console.error("Error creating property:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 };
 
 export const getAllProperties = async (req, res) => {

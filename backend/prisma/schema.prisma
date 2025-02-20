@@ -35,9 +35,9 @@ description String
 price     Float
 location  String
 hostId    String
+images   String[]
 host     User   @relation(fields: [hostId], references: [id]) //A property belongs to one user 
 bookings Booking[] // a property can have many bookings
-
 
 }
 
