@@ -1,10 +1,10 @@
 'use client';
-
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, MapPin, Users, Calendar } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
 import Navbar from '../../components/Navbar';
 import { useParams, useRouter } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
 
 interface Property {
     id: number;
@@ -19,7 +19,22 @@ const PropertyDetails = () => {
     const { id } = useParams(); 
     const router = useRouter();
     const [property, setProperty] = useState<Property | null>(null);
-  
+    const [userRole, setUserRole] = useState<string | null>(null);  // To store the user's role
+    const [isReserved, setIsReserved] = useState(false); // State to track reservation status
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                const decoded: any = jwtDecode(token);
+                console.log('Decoded Token:', decoded);
+                setUserRole(decoded.role);  // Set the role from the decoded token
+            } catch (error) {
+                console.error("Error decoding token:", error);
+            }
+        }
+    }, []);
+
     useEffect(() => {
         if (id) {
             const fetchProperty = async () => {
@@ -34,6 +49,14 @@ const PropertyDetails = () => {
             fetchProperty();
         }
     }, [id]);
+
+    const handleReserve = () => {
+        // Simulate a reservation process
+        setIsReserved(true);
+        setTimeout(() => {
+            alert('Reservation Successful!');  // Simulate success message
+        }, 1000);
+    };
 
     if (!property) {
         return <div>Loading...</div>;
@@ -82,6 +105,43 @@ const PropertyDetails = () => {
                             <h2 className="text-2xl font-semibold mb-4">Description</h2>
                             <p className="text-gray-600">{property.description}</p>
                         </div>
+
+                        {/* Show edit and delete buttons only if the user is a host */}
+                        {userRole === 'RENTER' && (
+                            <div className="flex gap-4">
+                                <button
+                                    onClick={() => router.push(`/edit-property/${id}`)}  // Navigate to edit property page
+                                    className="bg-blue-600 text-white py-2 px-4 rounded-lg"
+                                >
+                                    Edit Property
+                                </button>
+                                <button
+                                    onClick={async () => {
+                                        const confirmDelete = window.confirm("Are you sure you want to delete this property?");
+                                        if (confirmDelete) {
+                                            try {
+                                                const response = await fetch(`http://localhost:5000/api/properties/${id}`, {
+                                                    method: 'DELETE',
+                                                    headers: {
+                                                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                                                    },
+                                                });
+                                                if (response.ok) {
+                                                    router.push('/home'); 
+                                                } else {
+                                                    console.error("Error deleting property");
+                                                }
+                                            } catch (error) {
+                                                console.error("Error deleting property:", error);
+                                            }
+                                        }
+                                    }}
+                                    className="bg-red-600 text-white py-2 px-4 rounded-lg"
+                                >
+                                    Delete Property
+                                </button>
+                            </div>
+                        )}
                     </div>
 
                     <div className="lg:col-span-1">
@@ -111,8 +171,13 @@ const PropertyDetails = () => {
                                     </div>
                                 </div>
 
-                                <button className="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition-colors">
-                                    Reserve Now
+                                {/* Change the button based on reservation state */}
+                                <button
+                                    onClick={handleReserve}
+                                    className={`w-full ${isReserved ? 'bg-green-600' : 'bg-purple-600'} text-white py-3 rounded-lg hover:bg-purple-700 transition-colors`}
+                                    disabled={isReserved}
+                                >
+                                    {isReserved ? 'Reserved' : 'Reserve Now'}
                                 </button>
                             </CardContent>
                         </Card>

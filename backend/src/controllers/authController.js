@@ -147,24 +147,34 @@ export const googleAuthCallback = async (req, res) => {
 
 
 
+
 export const changeUserRole = async (req, res) => {
     try {
-      const { role } = req.body;
-  
-      const userId = req.user.id; 
+        const { role } = req.body;
+        const userId = req.user.id;
 
-      const updatedUser = await prisma.user.update({
-        where: { id: userId },
-        data: { role },
-      });
-  
-      res.json({ message: "Role updated successfully", user: updatedUser });
+        const updatedUser = await prisma.user.update({
+            where: { id: userId },
+            data: { role },
+        });
+
+        const token = jwt.sign(
+            { id: updatedUser.id, role: updatedUser.role }, 
+            process.env.JWT_SECRET, 
+            { expiresIn: '1h' } 
+        );
+
+        res.json({
+            message: "Role updated successfully",
+            user: updatedUser,
+            token, 
+        });
     } catch (error) {
-      console.error("Role Update Error:", error);
-      res.status(500).json({ error: "Something went wrong" });
+        console.error("Role Update Error:", error);
+        res.status(500).json({ error: "Something went wrong" });
     }
-  };
-  
+};
+
 
   export const getUser = async (req, res) => {
     try {

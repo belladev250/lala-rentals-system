@@ -1,5 +1,5 @@
 import express from "express";
-import { createProperty, getAllProperties,getPropertyById } from "../controllers/propertyController.js";
+import { createProperty, getAllProperties,getPropertyById ,deleteProperty,updateProperty } from "../controllers/propertyController.js";
 import { authenticateUser } from "../middlewares/authmiddleware.js";
 import { upload } from "../middlewares/uploadMiddleware.js";
 
@@ -50,6 +50,8 @@ router.post("", authenticateUser, upload.array("images", 4), createProperty);
  */
 router.get("/", getAllProperties);
 router.get("/:id", getPropertyById);
+router.delete('/:id', deleteProperty);
+router.put('/:id', updateProperty); // 'images' is the key for the files
 
 
 export default router;

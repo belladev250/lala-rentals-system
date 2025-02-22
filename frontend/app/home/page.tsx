@@ -4,6 +4,8 @@ import { Card, CardContent } from "../components/ui/card";
 import Link from "next/link";
 import Navbar from "../components/Navbar";
 import { useState, useEffect } from "react";
+import router from "next/router";
+import { useRouter } from "next/navigation";
 
 // Define the Property interface
 interface Property {
@@ -16,7 +18,9 @@ interface Property {
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [role, setRole] = useState('RENTER'); 
   const [featuredProperties, setFeaturedProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState<boolean>(false); 
 
   // Fetch properties data from the API
   useEffect(() => {
@@ -33,6 +37,55 @@ export default function HomePage() {
     fetchProperties();
   }, []);
 
+  useEffect(() => {
+    const savedRole = localStorage.getItem('role') || 'RENTER'; 
+    setRole(savedRole); 
+  }, []); 
+  
+  const handleRoleChange = async (newRole: string) => {
+    setLoading(true);
+    
+    // Retrieve token from localStorage
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      alert('User is not authenticated.');
+      setLoading(false);
+      return;
+    }
+  
+    try {
+      const response = await fetch('http://localhost:5000/api/auth/user/change-role', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,  
+        },
+        body: JSON.stringify({ role: newRole }),
+      });
+  
+      const data = await response.json();
+      console.log(data);  // Log the response for debugging
+  
+      if (response.ok) {
+        localStorage.setItem('role', newRole)
+        setRole(newRole);
+        console.log(JSON.stringify({ role: newRole }),)
+        alert(data.message);  // Success message from the backend
+      } else {
+        alert(`Error: ${data.error || 'Role change failed'}`);
+      }
+    } catch (error) {
+      console.error("Error changing role:", error);
+      alert('Failed to change role');
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+
+  
+
   return (
     <div className="bg-gradient-to-r from-purple-50 to-purple-100">
       <Navbar />
@@ -43,6 +96,39 @@ export default function HomePage() {
             <h2 className="text-4xl font-bold text-gray-900 mb-8">
               Find Your Perfect Stay
             </h2>
+
+               {/* Role Switching Section */}
+               <div className="space-x-4 mb-8">
+              <button
+                onClick={() => handleRoleChange('RENTER')}
+                disabled={loading}
+                className="px-8 py-3 text-white font-semibold rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 transition-all transform hover:scale-105 shadow-xl"
+              >
+                {loading && role === 'RENTER' ? 'Switching...' : ' RENTER'}
+              </button>
+              <button
+                onClick={() => handleRoleChange('HOST')}
+                disabled={loading}
+                className="px-8 py-3 text-white font-semibold rounded-xl bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 transition-all transform hover:scale-105 shadow-xl"
+              >
+                {loading && role === 'HOST' ? 'Switching...' : 'HOST'}
+              </button>
+            </div>
+
+            {/* Loading State */}
+            {loading && <p className="text-gray-700 font-semibold">Updating your role...</p>}
+
+            {/* Conditional Render for 'Host' Role */}
+            {role === 'HOST' && (
+              <div className="mt-8 mb-12">
+                <Link
+                  href="/list"
+                  className="px-6 py-3 text-white font-semibold bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 rounded-lg shadow-lg transition-all transform hover:scale-105"
+                >
+                  Create Property
+                </Link>
+              </div>
+            )}
 
             {/* Search Bar */}
             <div className="max-w-3xl mx-auto bg-white p-4 rounded-lg shadow-lg">
@@ -59,16 +145,6 @@ export default function HomePage() {
                 </div>
 
                 <div className="flex gap-4">
-                  <button className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50">
-                    <Calendar className="h-5 w-5 text-gray-400" />
-                    <span>Dates</span>
-                  </button>
-
-                  <button className="flex items-center gap-2 px-4 py-2 border rounded-lg hover:bg-gray-50">
-                    <User className="h-5 w-5 text-gray-400" />
-                    <span>Guests</span>
-                  </button>
-
                   <button className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700">
                     <Search className="h-5 w-5" />
                   </button>
@@ -120,3 +196,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+
