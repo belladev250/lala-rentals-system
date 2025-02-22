@@ -111,7 +111,7 @@ const PropertyDetails = () => {
                             <div className="flex gap-4">
                                 <button
                                     onClick={() => router.push(`/edit-property/${id}`)}  // Navigate to edit property page
-                                    className="bg-blue-600 text-white py-2 px-4 rounded-lg"
+                                    className="bg-purple-600 text-white py-2 px-4 rounded-lg"
                                 >
                                     Edit Property
                                 </button>
