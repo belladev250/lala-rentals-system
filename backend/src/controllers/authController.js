@@ -71,29 +71,29 @@ export const googleSignIn = async (req, res) => {
 
 
 export const googleAuthCallback = async (req, res) => {
-    console.log("Callback function triggered"); // Check if the function is called
+    console.log("Callback function triggered");
     try {
         const { code } = req.query;
-        console.log("Received authorization code:", code); // Log the received code
+        console.log("Received authorization code:", code);
 
         if (!code) {
             console.log("No authorization code received");
             return res.status(400).json({ error: "Authorization code is required" });
         }
 
-        // Step 1: Exchange the authorization code for an access token and ID token
+        // Step 1: Exchange the authorization code for tokens
+        console.log("Exchanging code for tokens...");
         const tokenResponse = await axios.post("https://oauth2.googleapis.com/token", null, {
             params: {
                 client_id: process.env.GOOGLE_CLIENT_ID,
                 client_secret: process.env.GOOGLE_CLIENT_SECRET,
-                redirect_uri: "http://localhost:5000/api/auth/callback",  // Use your redirect URI
+                redirect_uri: "http://localhost:5000/api/auth/callback",
                 grant_type: "authorization_code",
                 code: code,
             },
         });
 
-        console.log("Google token response:", tokenResponse.data);  // Log the entire response
-
+        console.log("Token response received");
         const { id_token } = tokenResponse.data;
 
         if (!id_token) {
@@ -101,71 +101,55 @@ export const googleAuthCallback = async (req, res) => {
             return res.status(400).json({ error: "ID token missing from Google response" });
         }
 
-        // Step 2: Decode and log the id_token to ensure it's an RS256 token
-        try {
-            const decoded = jwt.decode(id_token, { complete: true });
-            console.log("Decoded ID token:", decoded);  // Log the decoded JWT structure
-        } catch (err) {
-            console.error("Error decoding token:", err);
-            return res.status(400).json({ error: "Error decoding the token" });
-        }
-
-        // Step 3: Verify the Google ID token (RS256) using Google's public keys
-        console.log("Verifying ID token with Google OAuth2 client...");
+        // Step 2: Verify the ID token
+        console.log("Verifying ID token...");
         const ticket = await client.verifyIdToken({
             idToken: id_token,
-            audience: process.env.GOOGLE_CLIENT_ID, // Ensure this is the correct audience (your Google Client ID)
+            audience: process.env.GOOGLE_CLIENT_ID,
         });
 
-        console.log("Ticket received from Google:", ticket); // Log the ticket response
-
         const { email, name, sub } = ticket.getPayload();
-        console.log("Verified user payload:", { email, name, sub }); // Log user info from Google
+        console.log("User info from Google:", { email, name, sub });
 
-        // Step 4: Find or create the user in your database
+        // Step 3: Find or create user
         let user = await prisma.user.findUnique({ where: { email } });
 
         if (!user) {
-            console.log("User not found, creating a new one...");
+            console.log("Creating new user...");
             user = await prisma.user.create({
                 data: {
                     email,
                     name,
                     googleId: sub,
                     role: "RENTER",
-
                 },
             });
         }
 
-        console.log("User:", user); // Log the user info
-
-        // Step 5: Generate your custom JWT (access token) for your app (signed with HS256)
+        // Step 4: Generate JWT
         const accessToken = jwt.sign(
-            { id: user.id, role: user.role }, 
-            process.env.JWT_SECRET,  // Secret for signing your JWT (HS256)
+            { id: user.id, role: user.role },
+            process.env.JWT_SECRET,
             { expiresIn: "1d" }
         );
 
-        console.log("Generated access token:", accessToken); // Log the access token
-
-        // Step 6: Redirect to frontend with the custom JWT (access token)
-        res.redirect(`http://localhost:3000/dashboard?token=${accessToken}`);
+        // Step 5: Redirect with token
+             const redirectUrl = `http://localhost:3000/home?token=${accessToken}`;
+            console.log("Redirecting to:", redirectUrl);
+           res.redirect(redirectUrl);
 
     } catch (error) {
-        console.error("Google Auth Callback Error:", error);  // Log any error that occurs during the process
-        res.status(500).json({ error: "Internal Server Error" });
+        console.error("Google Auth Callback Error:", error);
+        // Redirect to frontend with error
+        res.redirect(`http://localhost:3000?error=${encodeURIComponent(error.message)}`);
     }
 };
-
 
 
 
 export const changeUserRole = async (req, res) => {
     try {
       const { role } = req.body;
-  
-     
   
       const userId = req.user.id; 
 
@@ -181,3 +165,29 @@ export const changeUserRole = async (req, res) => {
     }
   };
   
+
+  export const getUser = async (req, res) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader) {
+            return res.status(401).json({ error: 'No token provided' });
+        }
+
+        const token = authHeader.split(' ')[1];
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        const user = await prisma.user.findUnique({
+            where: { id: decoded.id },
+        });
+
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json({ user });
+    } catch (error) {
+        console.error('Error fetching user:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+

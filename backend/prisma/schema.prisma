@@ -32,7 +32,7 @@ model Property {
 id       String   @id @default(cuid())
 title    String
 description String
-price     Float
+price     String
 location  String
 hostId    String
 images   String[]

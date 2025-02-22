@@ -1,5 +1,5 @@
 import express from "express";
-import { createProperty, getAllProperties } from "../controllers/propertyController.js";
+import { createProperty, getAllProperties,getPropertyById } from "../controllers/propertyController.js";
 import { authenticateUser } from "../middlewares/authmiddleware.js";
 import { upload } from "../middlewares/uploadMiddleware.js";
 
@@ -49,5 +49,7 @@ router.post("", authenticateUser, upload.array("images", 4), createProperty);
  *         description: List of properties
  */
 router.get("/", getAllProperties);
+router.get("/:id", getPropertyById);
+
 
 export default router;

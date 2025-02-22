@@ -1,7 +1,7 @@
 
 import express from 'express';
 
-import {googleSignIn,googleAuthCallback } from '../controllers/authController.js'
+import {googleSignIn,googleAuthCallback ,getUser} from '../controllers/authController.js'
 
 
 const router = express.Router();
@@ -31,5 +31,7 @@ const router = express.Router();
 
 router.post('/google', googleSignIn); 
 router.get('/callback', googleAuthCallback); 
+router.get('/user', getUser);
+
 
 export default router;
