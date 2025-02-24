@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { MapPin, Upload, X } from 'lucide-react';
-import { Card, CardContent } from '../components/ui/card'; // Assuming you have a Card component
+import { Card, CardContent } from '../components/ui/card'; 
 import Navbar from '../components/Navbar';
 import {useRouter} from 'next/navigation';
 
@@ -24,7 +24,7 @@ const PropertyCreationForm = () => {
   });
   const [images, setImages] = useState<File[]>([]);
   const [priceError, setPriceError] = useState<string>('');
-  const [successMessage, setSuccessMessage] = useState<string>(''); // Success message state
+  const [successMessage, setSuccessMessage] = useState<string>('');
   const router = useRouter();
 
   const validatePrice = (value: string): boolean => {
@@ -95,13 +95,11 @@ const PropertyCreationForm = () => {
       const data = await response.json();
       console.log('Property created successfully:', data);
 
-      // Show success message and redirect after successful submission
       setSuccessMessage('Property created successfully!');
       setTimeout(() => {
-        router.push('/home'); // Redirect to /home after 2 seconds
+        router.push('/home'); 
       }, 2000);
 
-      // Clear form after successful submission
       setFormData({
         title: '',
         location: '',

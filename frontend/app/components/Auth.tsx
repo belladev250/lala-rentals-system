@@ -11,7 +11,7 @@ const AuthForm = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams(); // Hook to get query params
+  const searchParams = useSearchParams(); 
 
   useEffect(() => {
     const token = searchParams.get('token');

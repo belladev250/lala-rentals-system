@@ -51,10 +51,9 @@ const PropertyDetails = () => {
     }, [id]);
 
     const handleReserve = () => {
-        // Simulate a reservation process
         setIsReserved(true);
         setTimeout(() => {
-            alert('Reservation Successful!');  // Simulate success message
+            alert('Reservation Successful!');  
         }, 1000);
     };
 

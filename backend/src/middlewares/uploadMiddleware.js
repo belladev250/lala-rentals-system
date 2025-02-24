@@ -8,7 +8,7 @@ console.log("Uploads directory path: ", uploadPath);
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    // Log the folder where the file will be stored
+
     console.log("Saving file to:", uploadPath);
     cb(null, uploadPath);
   },

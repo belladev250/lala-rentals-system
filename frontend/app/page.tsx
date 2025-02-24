@@ -9,12 +9,12 @@ export default function Home() {
   const router = useRouter();
   const { token } = useAuth(); 
 
-  useEffect(() => {
-    if (!token) {
-      console.log("No token found. Redirecting to login...");
-      router.push('/list'); // Example redirect to login page
-    }
-  }, [token, router]);
+  // useEffect(() => {
+  //   if (!token) {
+  //     console.log("No token found. Redirecting to login...");
+  //     router.push('/list'); // Example redirect to login page
+  //   }
+  // }, [token, router]);
 
   return (
     <main className="p-4">

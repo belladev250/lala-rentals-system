@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import router from "next/router";
 import { useRouter } from "next/navigation";
 
-// Define the Property interface
+
 interface Property {
   id: number;
   title: string;
@@ -65,7 +65,7 @@ export default function HomePage() {
       });
   
       const data = await response.json();
-      console.log(data);  // Log the response for debugging
+      console.log(data); 
   
       if (response.ok) {
         localStorage.setItem('role', newRole)
